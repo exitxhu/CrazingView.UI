@@ -22,14 +22,16 @@ let tabStateProt = {
     records: [],
     sessionId: '',
     strat: {},
-    strats: []
+    strats: [],
+    debug:false
 }
 let tabState = {
     id: '',
     records: [],
     sessionId: '',
     strat: {},
-    strats: []
+    strats: [],
+    debug:false
 }
 
 let rawRecords = [];
@@ -45,8 +47,16 @@ function bind(event, param) {
 
 }
 window.addEventListener('load', async () => {
+    
     console.log('load')
     thisTab = (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
+    try{
+
+        chrome.runtime.sendMessage({ eventPlease: "debug",tabid:thisTab.id}, function (response) {})
+    }catch(e){
+
+    }
+
     console.log(thisTab);
     tabState = get(thisTab.id)
     if (!tabState) {

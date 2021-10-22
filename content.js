@@ -83,8 +83,8 @@ let overlapObserver = new MutationObserver(function (mutationRecords) {
                     console.log(temprec);
                     for (let i = 0; i < temprec.length; i++) {
                         const tr = temprec[i];
-                        console.log(i, tr, inputs[i].value);
-                        inputs[i].value = tr;
+                        setValue(inputs[i],tr)
+
                     }
                     recProcessed += 1;
                 }
@@ -95,6 +95,7 @@ let overlapObserver = new MutationObserver(function (mutationRecords) {
 });
 function flow() {
     recCount = config.records.length
+    recProcessed = 0
     let formatBtn = document.querySelector(query_format_btn);
     console.log(formatBtn);
     console.log(query_format_btn);
@@ -116,7 +117,21 @@ function findElementByXpath(path) {
     return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
 }
 
+function setValue (el,val){
+    var rect = el.getBoundingClientRect();
+    var coor = {
+        x: Math.floor(rect.x),
+        y: Math.floor(rect.y)
+    }
 
+
+    // console.log(coor);
+    // console.log(rect);
+    chrome.runtime.sendMessage({ eventPlease: "trusted", x: coor.x, y: coor.y, val: val }, function (response) {
+        // console.log(response.yourEvent);
+    });
+
+}
 
 // setTimeout(function () {
 
