@@ -1,0 +1,45 @@
+{
+    "name": "TradingViewAutoSterategy",
+    "description": "Build an Extension!",
+    "version": "1.0",
+    "manifest_version": 3,
+    "background": {
+        "service_worker": "background.js"
+    },
+    "permissions": [
+        "storage",
+        "activeTab",
+        "scripting",
+        "debugger"
+    ],
+    "host_permissions": [
+        "\u003Call_urls>"
+    ],
+    "action": {
+        "default_popup": "popup.html",
+        "default_title": "Start Strategy",
+        "default_icon": {
+            "16": "/images/get_started16.png",
+            "32": "/images/get_started32.png",
+            "48": "/images/get_started48.png",
+            "128": "/images/get_started128.png"
+        }
+    },
+    "icons": {
+        "16": "/images/get_started16.png",
+        "32": "/images/get_started32.png",
+        "48": "/images/get_started48.png",
+        "128": "/images/get_started128.png"
+    },
+    "content_scripts": [
+        {
+            "js": [
+                "content.js"
+            ],
+            "matches": [
+                "\u003Call_urls>"
+            ],
+            "run_at": "document_start"
+        }
+    ]
+}

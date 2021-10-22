@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="popup.css">
+
+    <title>Document</title>
+</head>
+
+<body style="min-width: 500px; height: 400px;">
+
+    <div id="nav" class="nav">
+        <span id="mainSelector" class="nav-item selected">main</span>
+        <span id="settinSelector" class="nav-item">setting</span>
+        <span id="settingGlobalSelector" class="nav-item">setting global</span>
+    </div>
+    <div id="main">
+
+        <!-- <div style="display: flex;">
+            <div style="display: flex; flex-direction: column; background-color: burlywood;"
+                class="p-2 mr-2 border-raduis-15">
+                left Bar Low
+                <span class="m-1">
+                    <label class="mw-85 d-inline-block">minimum</label>
+                    <input type="number" placeholder="min">
+                </span>
+                <span class="m-1">
+                    <label class="mw-85 d-inline-block">maximum</label>
+                    <input type="number" placeholder="max">
+                </span>
+                <span class="m-1">
+                    <label class="mw-85 d-inline-block">change step</label>
+                    <input type="number" placeholder="step" onchange="">
+                </span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; background-color: burlywood;"
+                class="p-2 border-raduis-15">
+                Right Bar High
+                <span class="m-1">
+                    <label class="mw-85 d-inline-block">minimum</label> <input type="number" placeholder="min">
+                </span>
+                <span class="m-1">
+                    <label class="mw-85 d-inline-block">maximum</label> <input type="number" placeholder="max">
+                </span>
+                <span class="m-1">
+                    <label class="mw-85 d-inline-block">change step</label> <input type="number" placeholder="step">
+                </span>
+            </div>
+        </div>
+
+
+        <div style="display: flex;" class="mt-1">
+            <div style="display: flex; flex-direction: column; background-color: burlywood;"
+                class="p-2 mr-2 border-raduis-15">
+                Right Bar Low
+                <span class="m-1">
+                    <label class="mw-85 d-inline-block">minimum</label> <input type="number" placeholder="min">
+                </span>
+                <span class="m-1">
+                    <label class="mw-85 d-inline-block">maximum</label> <input type="number" placeholder="max">
+                </span>
+                <span class="m-1">
+                    <label class="mw-85 d-inline-block">change step</label> <input type="number" placeholder="step">
+                </span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; background-color: burlywood;"
+                class="p-2 border-raduis-15">
+                Left Bar High
+                <span class="m-1">
+                    <label class="mw-85 d-inline-block">minimum</label> <input type="number" placeholder="min">
+                </span>
+                <span class="m-1">
+                    <label class="mw-85 d-inline-block">maximum</label> <input type="number" placeholder="max">
+                </span>
+                <span class="m-1">
+                    <label class="mw-85 d-inline-block">change step</label> <input type="number" placeholder="step">
+                </span>
+            </div>
+        </div> -->
+
+        
+        <button id="startBtn">
+            Start
+        </button>
+        <button id="startSession"> get</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <div id="setting" class="hidden">
+        SomeSetting
+    </div>
+
+    <div id="settingGlobal" class="hidden">
+        settingGlobal
+    </div>
+    <script src="axios.js"></script>
+
+    <script src="popup.js"></script>
+
+</body>
+
+</html>
