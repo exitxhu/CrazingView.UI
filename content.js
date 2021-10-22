@@ -5,23 +5,8 @@ var n = 0;
 var nowDownEvent, nowUpEvent;
 
 let config = {
-    type: 'RunFlow',
-
-    leftBarHighMin: 0,
-    leftBarHighMax: 0,
-    leftBarHighStep: 0,
-
-    rightBarHighMin: 0,
-    rightBarHighMax: 0,
-    rightBarHighStep: 0,
-
-    leftBarLowMin: 0,
-    leftBarLowMax: 0,
-    leftBarLowStep: 0,
-
-    rightBarLowMin: 0,
-    rightBarLowMax: 0,
-    rightBarLowStep: 0,
+    type: '',
+    records: []
 }
 
 const pattern_bottom_area = '//*[@id="bottom-area"]';
@@ -50,6 +35,9 @@ var sharpRatio = 0;
 var profitFactor = 0;
 var percentProfitable = 0;
 
+var recCount = 0;
+var recProcessed = 0;
+
 chrome.runtime.onMessage.addListener(
     function (request, sender, sendResponse) {
         if (request.type === 'RunFlow') {
@@ -76,26 +64,37 @@ let strategyObserver = new MutationObserver(function (mutationRecords) {
 });
 let overlapObserver = new MutationObserver(function (mutationRecords) {
     overlapObserver.disconnect();
-    let input = findElementByXpath(pattern_format_leftBarHigh_input);
-    input.value = config.leftBarHighMin;
-    if (input) {
+    let inputs = [findElementByXpath(pattern_format_leftBarHigh_input)
+        , findElementByXpath(pattern_format_rightBarHigh_input)
+        , findElementByXpath(pattern_format_leftBarLow_input)
+        , findElementByXpath(pattern_format_rightBarLow_input)]
+    console.log(inputs);
+    if (inputs) {
         setTimeout(() => {
             let timer = setInterval(() => {
                 console.log(config);
-                console.log(input.value, config.leftBarHighMax, +input.value > +config.leftBarHighMax);
-                if (+input.value === +config.leftBarHighMax) {
+                // console.log(input1.value, config.leftBarHighMax, +input.value > +config.leftBarHighMax);
+                if (recProcessed + 1 == recCount) {
                     console.log('done incrementing');
                     clearInterval(timer);
                 }
-                else
-                input.value = (+input.value) + +config.leftBarHighStep;
-                console.log(input.value);
+                else {
+                    let temprec = config.records[recProcessed]
+                    console.log(temprec);
+                    for (let i = 0; i < temprec.length; i++) {
+                        const tr = temprec[i];
+                        console.log(i, tr, inputs[i].value);
+                        inputs[i].value = tr;
+                    }
+                    recProcessed += 1;
+                }
 
             }, 1500)
         }, callFormatButtonTimout)
     }
 });
 function flow() {
+    recCount = config.records.length
     let formatBtn = document.querySelector(query_format_btn);
     console.log(formatBtn);
     console.log(query_format_btn);
@@ -108,7 +107,7 @@ function flow() {
     else {
         formatBtn.click();
         let overl = document.getElementById(id_overlap_manager)
-        console.log(overl,);
+        // console.log(overl,);
         overlapObserver.observe(overl, { childList: true })
     }
 }

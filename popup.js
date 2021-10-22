@@ -4,43 +4,71 @@ let mainSelector = document.getElementById("mainSelector");
 let settinSelector = document.getElementById("settinSelector");
 let settingGlobalSelector = document.getElementById("settingGlobalSelector");
 
+let stratsSelect = document.getElementById('strats')
+let stratsInfoDiv = document.getElementById('stratInfo')
+
 let main = document.getElementById("main");
 let settingGlobal = document.getElementById("settingGlobal");
 let setting = document.getElementById("setting");
 let startSessionBtn = document.getElementById("startSession")
 let result = document.getElementById("result")
 let baseUrl = "https://localhost:44334/";
+
 const getStrategiesUrl = baseUrl + 'api/Strategies';
 const startSessionUrl = baseUrl + 'api/Sessions/StartNewSession';
 
-let thisTab = {};
-let strat = {};
+let tabStateProt = {
+    id: '',
+    records: [],
+    sessionId: '',
+    strat: {},
+    strats: []
+}
+let tabState = {
+    id: '',
+    records: [],
+    sessionId: '',
+    strat: {},
+    strats: []
+}
 
+let rawRecords = [];
+let thisTab = {};
+let strats = [];
+let strat = {}
 let config = {
     type: 'RunFlow',
+    records: []
 
-    leftBarHighMin: 0,
-    leftBarHighMax: 10,
-    leftBarHighStep: 1,
-
-    rightBarHighMin: 0,
-    rightBarHighMax: 10,
-    rightBarHighStep: 1,
-
-    leftBarLowMin: 0,
-    leftBarLowMax: 10,
-    leftBarLowStep: 1,
-
-    rightBarLowMin: 0,
-    rightBarLowMax: 10,
-    rightBarLowStep: 1,
 }
 function bind(event, param) {
 
 }
 window.addEventListener('load', async () => {
     console.log('load')
-    thisTab = await chrome.tabs.query({ active: true, currentWindow: true });
+    thisTab = (await chrome.tabs.query({ active: true, currentWindow: true }))[0];
+    console.log(thisTab);
+    tabState = get(thisTab.id)
+    if (!tabState) {
+        tabState = JSON.parse(JSON.stringify(tabStateProt))
+        tabState.id = thisTab.id;
+    }
+    if (tabState.strats.length == 0) {
+
+        axios.get(getStrategiesUrl)
+            .then(response => {
+                strats = response.data;
+                stratSeletOptionSetter()
+                set(thisTab.id, tabState)
+            })
+            .catch(error => console.error(error));
+    }
+    else {
+        strats = tabState.strats
+        strat = tabState.strat
+        stratSeletOptionSetter(strat.id)
+    }
+
     chrome.storage.sync.get("color", ({ color }) => {
         startButton.style.backgroundColor = color;
     });
@@ -54,47 +82,87 @@ startButton.addEventListener("click", async () => {
     //     target: { tabId: tab.id },
     //     function: setPageBackgroundColor,
     // });
+
+    config.records = tabState.records
     chrome.tabs.sendMessage(tab.id, config, function (response) {
     });
 });
-mainSelector.addEventListener("click", navMain)
-settinSelector.addEventListener("click", navSetting)
-settingGlobalSelector.addEventListener("click", navSettingGlobal)
-startSessionBtn.addEventListener('click', getSample)
+stratsSelect.addEventListener('change', () => {
+    var t = stratsSelect.value;
+    strat = strats.find(n => n.id == t)
+    tabState.strat = strat
+    set(thisTab.id, tabState)
+    if (t < 0)
+        return false
+    let inp = '';
+    strat.inputs.forEach(m => {
+        inp += `</br>
+        <div style='padding-right:20px;padding-left:20px;'>
+        <div>input name: ${m.name}</div>
+        <div>input min: ${m.minValue}</div>
+        <div>input max: ${m.maxValue}</div>
+        <div>input stepSize: ${m.increaseStep}</div>
+        </div>`
+    })
+    stratsInfoDiv.innerHTML = `<div>strat Name: ${strat.name}</div> 
+<div>strat inputs: ${strat.inputs.length}</div> ${inp}`;
+})
 
-async function getSample() {
-    console.log(strat)
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-    // let tab = { id: 21 };
+startSessionBtn.addEventListener('click', startSession)
 
-    console.log(tab)
-    axios.get(getStrategiesUrl)
-        .then(response => {
-            const users = response.data.data;
-            console.log(`GET users`, response.data);
-            strat = response.data[0]
-            startSession(tab.id)
-        })
-        .catch(error => console.error(error));
-}
-function startSession(tabid) {
-    axios.post(startSessionUrl + `?stratId=${strat.id}&tabId=${tabid}`).then(r => {
-        let res='';
+async function startSession() {
+    axios.post(startSessionUrl + `?stratId=${strat.id}&tabId=${thisTab.id}`).then(r => {
+
+        rawRecords = [];
+        let res = '';
         r.data.records.forEach(element => {
             res += '<div class = "mt-3">'
             let t = element.value.split(',')
+            let tr = []
             t.forEach((m, i) => {
-                res += `<span class="chip">${i}: ${ m}</span>`
-
+                res += `<span class="chip">${i}: ${m}</span>`
+                tr.push(m)
             })
+            rawRecords.push(tr)
             res += '</div>'
         });
-        result.innerHTML=res
+        result.innerHTML = res
+        tabState.records = rawRecords;
+        tabState.sessionId = r.data.sid
+        console.log(tabState);
+        set(thisTab.id, tabState)
     })
 }
 
+/******** Utilities */
 
+function get(key) {
+    var t = localStorage.getItem(key)
+    if (t)
+        return JSON.parse(t)
+    return null
+}
+function set(key, val) {
+    localStorage.setItem(key, JSON.stringify(val))
+}
+function remove(key) {
+    localStorage.removeItem(key)
+}
+
+
+function stratSeletOptionSetter(defKey) {
+    let t = '<option id="defOption" value="-1">Select stratergy</option>';
+    strats.forEach(n => {
+        t += ` <option ${n.id == defKey ? 'selected="selected"' : ''} value="${n.id}">${n.name}</option>`
+    })
+    stratsSelect.innerHTML = t
+    tabState.strats = strats
+}
 /******** Navigation */
+mainSelector.addEventListener("click", navMain)
+settinSelector.addEventListener("click", navSetting)
+settingGlobalSelector.addEventListener("click", navSettingGlobal)
+
 function navSetting() {
     settinSelector.classList.add("selected")
     mainSelector.classList.remove("selected")
